@@ -27,10 +27,10 @@ class HomeViewModel(
         }
     }
 
-    val categories: DataLoadingLiveData<ApiResponseModel<List<Any>>> = DataLoadingLiveData()
+    //val categories: DataLoadingLiveData<ApiResponseModel<List<Any>>> = DataLoadingLiveData()
 
     private fun fetchCategories() {
-        categories.value = State.Loading
+        //categories.value = State.Loading
 
         scope.launch {
             flowOf(foodService.fetchFoodCategory())
@@ -38,10 +38,10 @@ class HomeViewModel(
                     if (food is Result.Success && drink is Result.Success) {
                         val result =
                             ApiResponseModel(meals = food.data.meals, drinks = drink.data.drinks)
-                        categories.loadSuccess(result)
+                        //categories.loadSuccess(result)
                         Result.Success(result)
                     } else {
-                        categories.loadFailure(Throwable("error"))
+                        //categories.loadFailure(Throwable("error"))
                         Result.Failure(Throwable("Error"))
                     }
                 }.collect {

@@ -35,29 +35,7 @@ class MainActivity : AppCompatActivity() {
         rv_food_category.adapter = foodCategoryAdapter
         rv_drink_category.adapter = drinkCategoryAdapter
 
-        viewModel.categories.observe(this, Observer {  state ->
-            placeholderView.bindState(state)
-
-            when (state) {
-                is State.Success -> {
-                    val data = state.data as ApiResponseModel<List<Any>>? ?: return@Observer
-                    data.let {
-                        val foodCategory = it.meals as List<FoodModel>
-                        val drinkCategory = it.drinks as List<DrinkModel>
-
-                        foodCategoryAdapter.itemCategoryList = foodCategory
-                        drinkCategoryAdapter.itemCategoryList = drinkCategory
-                    }
-
-                }
-                is State.Failure -> {
-                    showToast("Error while fetching data : error(${state.error})")
-                }
-            }
-        })
-
-        viewModel.state.observe(this, Observer { state ->
-
+//        viewModel.categories.observe(this, Observer {  state ->
 //            placeholderView.bindState(state)
 //
 //            when (state) {
@@ -76,6 +54,28 @@ class MainActivity : AppCompatActivity() {
 //                    showToast("Error while fetching data : error(${state.error})")
 //                }
 //            }
+//        })
+
+        viewModel.state.observe(this, Observer { state ->
+
+            placeholderView.bindState(state)
+
+            when (state) {
+                is State.Success -> {
+                    val data = state.data as ApiResponseModel<List<Any>>? ?: return@Observer
+                    data.let {
+                        val foodCategory = it.meals as List<FoodModel>
+                        val drinkCategory = it.drinks as List<DrinkModel>
+
+                        foodCategoryAdapter.itemCategoryList = foodCategory
+                        drinkCategoryAdapter.itemCategoryList = drinkCategory
+                    }
+
+                }
+                is State.Failure -> {
+                    showToast("Error while fetching data : error(${state.error})")
+                }
+            }
         })
     }
 }
