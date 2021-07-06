@@ -11,35 +11,37 @@ import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
 
-    private fun showToast(text: String) {
-        Toast.makeText(this, text, Toast.LENGTH_SHORT).show()
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        setCurrentFragment(HomeFragment())
+        setCurrentFragment(HomeFragment(), BottomNavFragmentTag.HOME)
 
         bottom_nav.setOnNavigationItemSelectedListener {
-            when(it.itemId) {
+            when (it.itemId) {
                 R.id.homeFragment -> {
-                    setCurrentFragment(HomeFragment())
+                    setCurrentFragment(HomeFragment(), BottomNavFragmentTag.HOME)
                 }
                 R.id.recipeFragment -> {
-                    setCurrentFragment(RecipeFragment())
+                    setCurrentFragment(RecipeFragment(), BottomNavFragmentTag.RECIPE)
                 }
                 else -> false
             }
         }
     }
 
-    private fun setCurrentFragment(fragment: Fragment):Boolean {
+    private enum class BottomNavFragmentTag {
+        HOME,
+        RECIPE
+    }
+
+    private fun setCurrentFragment(fragment: Fragment, tag: BottomNavFragmentTag): Boolean {
         supportFragmentManager.beginTransaction().apply {
-            add(R.id.frame_layout, fragment)
+            add(R.id.frame_layout, fragment, tag.name)
             replace(R.id.frame_layout, fragment)
             commit()
         }
         return true
     }
 }
+

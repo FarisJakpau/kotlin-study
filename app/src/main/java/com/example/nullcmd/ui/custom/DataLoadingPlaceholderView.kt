@@ -22,6 +22,7 @@ class DataLoadingPlaceholderView: ConstraintLayout {
 
     private fun init() {
         inflate(context, R.layout.layout_placeholder_view, this)
+        progressBar.playAnimation()
         btn_retry.setOnClickListener {
             retryClick?.invoke()
         }

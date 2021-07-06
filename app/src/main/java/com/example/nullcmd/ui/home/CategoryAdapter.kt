@@ -11,6 +11,13 @@ import com.example.nullcmd.models.FoodModel
 
 class CategoryAdapter<T> : RecyclerView.Adapter<CategoryViewHolder<T>>() {
 
+    interface Listener<T> {
+        fun onItemClick(item: T)
+    }
+
+    var listener: Listener<T>? = null
+    var itemSelectedPosition = -1
+
     var itemCategoryList: List<T> = listOf()
         set(value) {
             field = value
@@ -23,7 +30,7 @@ class CategoryAdapter<T> : RecyclerView.Adapter<CategoryViewHolder<T>>() {
 
     override fun onBindViewHolder(holder: CategoryViewHolder<T>, position: Int) {
         itemCategoryList[position].let {
-            holder.bind(it)
+            holder.bind(it, listener, itemSelectedPosition == position)
         }
     }
 
@@ -36,7 +43,7 @@ class CategoryViewHolder<T>(private val itemCategoryBinding: ItemCategoryBinding
     RecyclerView.ViewHolder(itemCategoryBinding.root) {
 
     companion object {
-        fun <T>create(parent: ViewGroup): CategoryViewHolder<T> {
+        fun <T> create(parent: ViewGroup): CategoryViewHolder<T> {
             val inflater = LayoutInflater.from(parent.context)
             val binding: ItemCategoryBinding =
                 DataBindingUtil.inflate(inflater, R.layout.item_category, parent, false)
@@ -44,14 +51,20 @@ class CategoryViewHolder<T>(private val itemCategoryBinding: ItemCategoryBinding
         }
     }
 
-    fun bind(model: T) {
-        when(model) {
+    fun bind(model: T, listener: CategoryAdapter.Listener<T>?, isSelected: Boolean) {
+        when (model) {
             is FoodModel -> {
                 itemCategoryBinding.categoryName = model.strCategory
             }
             is DrinkModel -> {
                 itemCategoryBinding.categoryName = model.strCategory
             }
+        }
+
+        itemCategoryBinding.color = if (!isSelected) R.color.teal_200 else R.color.purple_200
+
+        itemCategoryBinding.root.setOnClickListener {
+            listener?.onItemClick(model)
         }
     }
 }
