@@ -41,8 +41,10 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         }
 
         selectedMealCategoryChannel.observe(viewLifecycleOwner, {
-            if (it.meals != null)
+            if (it.meals != null){
                 println("selected food -> ${(it.meals as FoodModel).strCategory}")
+                viewModel.getFoodFromCategory(it.meals.strCategory.toString())
+            }
             if (it.drinks  != null)
                 println("selected drink -> ${(it?.drinks as DrinkModel).strCategory}")
         })
@@ -79,6 +81,21 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
                 }
                 is State.Failure -> {
                     showToast(requireContext(), "Error while fetching data : error(${state.error})")
+                }
+            }
+        })
+
+        viewModel.randomFood.observe(viewLifecycleOwner, Observer { state ->
+            when(state) {
+                is State.Failure -> {
+                    showToast(requireContext(), "Failed")
+                }
+
+                State.Loading -> {
+                    showToast(requireContext(), "Loading")
+                }
+                is State.Success -> {
+                    showToast(requireContext(), "Success ${state.data.meals?.size}")
                 }
             }
         })

@@ -5,7 +5,7 @@ import androidx.lifecycle.MutableLiveData
 class DataLoadingLiveData<T>: MutableLiveData<State<T>>() {
 
     fun loading() {
-        
+        postValue(State.Loading)
     }
 
     fun loadSuccess(data:T) {

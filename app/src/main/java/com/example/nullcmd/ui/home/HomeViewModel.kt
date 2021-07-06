@@ -6,6 +6,7 @@ import com.example.nullcmd.core.state.DataLoadingLiveData
 import com.example.nullcmd.core.state.DataLoadingViewModel
 import com.example.nullcmd.core.state.State
 import com.example.nullcmd.models.ApiResponseModel
+import com.example.nullcmd.models.FoodModel
 import com.example.nullcmd.service.primary.DrinkService
 import com.example.nullcmd.service.primary.FoodService
 import kotlinx.coroutines.flow.collect
@@ -18,6 +19,9 @@ class HomeViewModel(
     private val drinkService: DrinkService
 ) :
     DataLoadingViewModel<Any>() {
+
+    val randomFood: DataLoadingLiveData<ApiResponseModel<List<FoodModel>>> =
+        DataLoadingLiveData()
 
     init {
         fetchCategories()
@@ -41,6 +45,21 @@ class HomeViewModel(
                 }.collect {
                     result = it
                 }
+        }
+    }
+
+    fun getFoodFromCategory(category: String) {
+        randomFood.loading()
+        scope.launch {
+            when (val result = foodService.getFoodFromCategory(category)) {
+                is Result.Success -> {
+                    randomFood.loadSuccess(result.data)
+                }
+
+                is Result.Failure -> {
+                    randomFood.loadFailure(Throwable("error"))
+                }
+            }
         }
     }
 

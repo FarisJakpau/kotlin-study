@@ -15,4 +15,10 @@ class FoodService(
             foodApi.getMealCategory()
         }
     }
+
+    suspend fun getFoodFromCategory(category: String) : Result<ApiResponseModel<List<FoodModel>>> {
+        return networkRequestManager.apiRequest {
+            foodApi.getFoodFromCategory(category)
+        }
+    }
 }
