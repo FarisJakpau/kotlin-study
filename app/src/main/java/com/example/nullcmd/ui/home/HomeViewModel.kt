@@ -1,17 +1,16 @@
 package com.example.nullcmd.ui.home
 
-import android.util.Log
 import com.example.nullcmd.core.Result
-import com.example.nullcmd.core.state.DataLoadingLiveData
+import com.example.nullcmd.core.state.StateLiveData
 import com.example.nullcmd.core.state.DataLoadingViewModel
-import com.example.nullcmd.core.state.State
 import com.example.nullcmd.models.ApiResponseModel
+import com.example.nullcmd.models.DrinkModel
 import com.example.nullcmd.models.FoodModel
 import com.example.nullcmd.service.primary.DrinkService
 import com.example.nullcmd.service.primary.FoodService
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
 class HomeViewModel(
@@ -20,8 +19,13 @@ class HomeViewModel(
 ) :
     DataLoadingViewModel<Any>() {
 
-    val randomFood: DataLoadingLiveData<ApiResponseModel<List<FoodModel>>> =
-        DataLoadingLiveData()
+    val randomFood: StateLiveData<FoodModel> =
+        StateLiveData()
+    val randomDrink: StateLiveData<DrinkModel> =
+        StateLiveData()
+
+    val foodCategory: MutableStateFlow<FoodModel> = MutableStateFlow(FoodModel())
+    val drinkCategory: MutableStateFlow<DrinkModel> = MutableStateFlow(DrinkModel())
 
     init {
         fetchCategories()
@@ -48,18 +52,55 @@ class HomeViewModel(
         }
     }
 
-    fun getFoodFromCategory(category: String) {
+    @ExperimentalCoroutinesApi
+    @FlowPreview
+    fun getFoodFromCategory() {
         randomFood.loading()
-        scope.launch {
-            when (val result = foodService.getFoodFromCategory(category)) {
-                is Result.Success -> {
-                    randomFood.loadSuccess(result.data)
-                }
 
-                is Result.Failure -> {
-                    randomFood.loadFailure(Throwable("error"))
+        scope.launch {
+            foodCategory.debounce(500)
+                .distinctUntilChanged()
+                .flatMapLatest {
+                    flowOf(foodService.getFoodFromCategory(it.strCategory.toString()))
+                }.collect { result ->
+                    when (result) {
+                        is Result.Failure -> {
+                            randomFood.loadFailure(Throwable("Error fetch food"))
+                            FoodModel()
+                        }
+                        is Result.Success -> {
+                            result.data.meals?.random()?.let {
+                                randomFood.loadSuccess(it)
+                            }
+                        }
+                    }
                 }
-            }
+        }
+    }
+
+    @FlowPreview
+    @ExperimentalCoroutinesApi
+    fun getDrinkFromCategory() {
+        randomDrink.loading()
+
+        scope.launch {
+            drinkCategory.debounce(500)
+                .distinctUntilChanged()
+                .flatMapLatest {
+                    flowOf(drinkService.getDrinkFromCategory(it.strCategory.toString()))
+                }.collect { result ->
+                    when (result) {
+                        is Result.Failure -> {
+                            randomDrink.loadFailure(Throwable("Error fetch drink"))
+                            DrinkModel()
+                        }
+                        is Result.Success -> {
+                            result.data.drinks?.random()?.let {
+                                randomDrink.loadSuccess(it)
+                            }
+                        }
+                    }
+                }
         }
     }
 

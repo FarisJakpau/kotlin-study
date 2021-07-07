@@ -2,7 +2,7 @@ package com.example.nullcmd.core.state
 
 import androidx.lifecycle.MutableLiveData
 
-class DataLoadingLiveData<T>: MutableLiveData<State<T>>() {
+class StateLiveData<T>: MutableLiveData<State<T>>() {
 
     fun loading() {
         postValue(State.Loading)

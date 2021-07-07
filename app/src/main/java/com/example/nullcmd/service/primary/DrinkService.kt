@@ -12,4 +12,7 @@ class DrinkService(
         drinkApi.getDrinkCategory()
     }
 
+    suspend fun getDrinkFromCategory(category: String) = networkRequestManager.apiRequest {
+        drinkApi.getDrinkFromCategory(category)
+    }
 }
